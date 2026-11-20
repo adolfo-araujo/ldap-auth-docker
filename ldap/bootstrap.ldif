@@ -1,0 +1,55 @@
+# Estrutura inicial do diretório: unidades organizacionais, usuários e grupos.
+# Carregado automaticamente pelo container osixia/openldap na primeira subida.
+
+dn: ou=usuarios,dc=uva,dc=local
+objectClass: organizationalUnit
+ou: usuarios
+
+dn: ou=grupos,dc=uva,dc=local
+objectClass: organizationalUnit
+ou: grupos
+
+# Senha: Ana@2026
+dn: uid=ana.souza,ou=usuarios,dc=uva,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ana.souza
+cn: Ana Souza
+sn: Souza
+givenName: Ana
+mail: ana.souza@uva.local
+uidNumber: 10001
+gidNumber: 10001
+homeDirectory: /home/ana.souza
+loginShell: /bin/bash
+userPassword: {SSHA}aLjSTjmRVxI9/AEk4NDTLSX1Jn6LmmgB
+
+# Senha: Carlos@2026
+dn: uid=carlos.lima,ou=usuarios,dc=uva,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: carlos.lima
+cn: Carlos Lima
+sn: Lima
+givenName: Carlos
+mail: carlos.lima@uva.local
+uidNumber: 10002
+gidNumber: 10002
+homeDirectory: /home/carlos.lima
+loginShell: /bin/bash
+userPassword: {SSHA}yGW0aiFyOd7IKhal+Yi2Qlp8EuAlT77a
+
+dn: cn=admins,ou=grupos,dc=uva,dc=local
+objectClass: groupOfNames
+cn: admins
+description: Administradores do sistema
+member: uid=ana.souza,ou=usuarios,dc=uva,dc=local
+
+dn: cn=usuarios,ou=grupos,dc=uva,dc=local
+objectClass: groupOfNames
+cn: usuarios
+description: Usuarios comuns
+member: uid=ana.souza,ou=usuarios,dc=uva,dc=local
+member: uid=carlos.lima,ou=usuarios,dc=uva,dc=local

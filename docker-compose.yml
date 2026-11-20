@@ -1,0 +1,79 @@
+services:
+  # Servidor de diretório OpenLDAP (base de usuários e grupos)
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: ldap
+    command: --copy-service
+    environment:
+      LDAP_ORGANISATION: "UVA Engenharia de Software"
+      LDAP_DOMAIN: "uva.local"                 # vira a base dc=uva,dc=local
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD}
+      LDAP_TLS: "false"
+    volumes:
+      - ./ldap/bootstrap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/50-bootstrap.ldif:ro
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+    ports:
+      - "127.0.0.1:389:389"
+    networks:
+      - backnet
+    healthcheck:
+      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost -b dc=uva,dc=local -D cn=admin,dc=uva,dc=local -w $$LDAP_ADMIN_PASSWORD uid=ana.souza | grep -q numEntries"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Interface web para administrar o LDAP (opcional, útil para os prints)
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: ldap
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "127.0.0.1:8081:80"
+    depends_on:
+      - ldap
+    networks:
+      - backnet
+
+  # API REST em Python/Flask que autentica no LDAP e emite JWT
+  backend:
+    build: ./backend
+    container_name: backend
+    environment:
+      LDAP_URL: ldap://ldap:389
+      LDAP_BASE_DN: dc=uva,dc=local
+      LDAP_USERS_OU: ou=usuarios,dc=uva,dc=local
+      LDAP_GROUPS_OU: ou=grupos,dc=uva,dc=local
+      LDAP_BIND_DN: cn=admin,dc=uva,dc=local
+      LDAP_BIND_PASSWORD: ${LDAP_ADMIN_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXP_MINUTES: "60"
+    ports:
+      - "127.0.0.1:5000:5000"
+    depends_on:
+      ldap:
+        condition: service_healthy
+    networks:
+      - backnet
+      - frontnet
+
+  # Front-end estático servido pelo Nginx, que também faz proxy de /api
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend
+    networks:
+      - frontnet
+
+networks:
+  backnet:
+  frontnet:
+
+volumes:
+  ldap_data:
+  ldap_config:

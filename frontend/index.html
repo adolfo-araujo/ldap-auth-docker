@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal LDAP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card">
+    <h1>Portal LDAP</h1>
+
+    <!-- Tela de login -->
+    <section id="tela-login">
+      <p class="sub">Entre com seu usuário do diretório</p>
+      <form id="form-login">
+        <label for="username">Usuário</label>
+        <input id="username" autocomplete="username" placeholder="ex.: ana.souza" required>
+        <label for="password">Senha</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <button type="submit">Entrar</button>
+      </form>
+      <p id="msg-login" class="erro"></p>
+    </section>
+
+    <!-- Tela após autenticação -->
+    <section id="tela-painel" hidden>
+      <p class="sub">Autenticado via LDAP</p>
+      <dl>
+        <dt>Nome</dt><dd id="p-nome"></dd>
+        <dt>Usuário</dt><dd id="p-uid"></dd>
+        <dt>E-mail</dt><dd id="p-email"></dd>
+        <dt>Grupos</dt><dd id="p-grupos"></dd>
+      </dl>
+      <div class="acoes">
+        <button id="btn-admin">Acessar área administrativa</button>
+        <button id="btn-sair" class="sec">Sair</button>
+      </div>
+      <pre id="saida-admin" hidden></pre>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
